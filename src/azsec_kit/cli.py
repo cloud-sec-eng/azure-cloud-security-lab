@@ -5,6 +5,8 @@ from pathlib import Path
 
 from azsec_kit.commands.activitylog import run as activitylog_run
 from azsec_kit.commands.inventory import run as inventory_run
+from azsec_kit.commands.policy import run as policy_run
+from azsec_kit.commands.rbac import run as rbac_run
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -32,6 +34,20 @@ def build_parser() -> argparse.ArgumentParser:
     al.add_argument("--out", default="reports/week01",
                     help="Output folder for evidence.")
 
+    rb = sub.add_parser(
+        "rbac", help="Collect RBAC evidence (assignments + role definitions).")
+    rb.add_argument("--rg", required=True,
+                    help="Target resource group name (used to scope RG-level RBAC).")
+    rb.add_argument("--out", default="reports/week02",
+                    help="Output folder for evidence.")
+
+    pol = sub.add_parser(
+        "policy", help="Collect Policy evidence (assignments + compliance summary).")
+    pol.add_argument("--rg", required=True,
+                     help="Target resource group name (scope for policy checks).")
+    pol.add_argument("--out", default="reports/week02",
+                     help="Output folder for evidence.")
+
     return p
 
 
@@ -46,5 +62,9 @@ def main() -> None:
         inventory_run(rg=args.rg, out_dir=out_dir, debug=args.debug)
     elif args.cmd == "activitylog":
         activitylog_run(rg=args.rg, out_dir=out_dir, debug=args.debug)
+    elif args.cmd == "rbac":
+        rbac_run(rg=args.rg, out_dir=out_dir, debug=args.debug)
+    elif args.cmd == "policy":
+        policy_run(rg=args.rg, out_dir=out_dir, debug=args.debug)
     else:
         raise ValueError(f"Unknown command: {args.cmd}")
